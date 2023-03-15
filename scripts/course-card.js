@@ -1,14 +1,48 @@
 class CourseCard {
-  constructor(data) {
-    this.data = data;
+  constructor(courses, clearTrash = false) {
+    this.courses = courses;
+    this.pagination = new Pagination(courses, clearTrash)
+    this.clearTrash = clearTrash;
+    this.coursesWrapper = document.querySelector('.courses-wrapper');
 
-    console.log(this.data);
-    this.renderCard()
+    if (this.clearTrash) this.coursesWrapper.innerHTML = '<div class="preloader"></div>';
+    this.preloader = this.coursesWrapper.querySelector('.preloader')
+
+    this.courseInit()
   }
 
-  renderCard() {
-    const {title, id, description, lessonsCount, rating, previewImageLink} = this.data;
-    const skills = this.data.meta.skills;
+  courseInit() {
+    const COURSER_PER_PAGE = 10;
+    const paginationCount = Math.ceil(this.courses.length / 10)
+    let pageNum = +(new URL(document.location).searchParams.get('page') || 1);
+    if (pageNum > paginationCount) pageNum = paginationCount;
+    if (pageNum <= 0) pageNum = 1; 
+
+    this.pagination.setURL(pageNum, false)
+    this.pagination.addPagination(true)
+
+    let startIndex = 0;
+    let endIndex = 10;
+
+    if (pageNum !== 1 && pageNum * COURSER_PER_PAGE <= this.courses.length) {
+      startIndex = COURSER_PER_PAGE * (pageNum - 1);
+      endIndex = startIndex + COURSER_PER_PAGE;
+    } else if (pageNum !== 1 && pageNum * COURSER_PER_PAGE > this.courses.length) {
+      startIndex = COURSER_PER_PAGE * (pageNum - 1);
+      endIndex = this.courses.length
+    }
+
+    for (let i = startIndex; i < endIndex; i++) {
+      this.renderCard(this.courses[i])
+      console.log(this.courses[i]);
+    }
+  }
+
+  renderCard(course) {
+    this.preloader.style.display = 'none';
+
+    const {title, id, description, lessonsCount, rating, previewImageLink} = course;
+    const skills = course.meta.skills;
     const card = document.createElement('div');
     card.classList.add('course-card');
 
@@ -45,33 +79,33 @@ class CourseCard {
     imageWrapper.classList.add('course-img-wrapper');
     imageWrapper.appendChild(courseImg)
 
-    const courseUrl = document.createElement('a');
-    courseUrl.href = id;
+    const courseURL = document.createElement('a');
+    courseURL.href = `html/course.html?data-id=${id}`;
 
     const skillsWrapper = document.createElement('ul');
     skillsWrapper.classList.add('course-skills');
-    for (let i = 0; i < skills.length; i++) {
-      if (i === 0) {
-        const skillsTitle = document.createElement('li');
-        skillsTitle.classList.add('skill-title')
-        skillsTitle.innerHTML = 'Course goals'
-        skillsWrapper.appendChild(skillsTitle)
+    if (skills && skills.length) {
+      for (let i = 0; i < skills.length; i++) {
+        if (i === 0) {
+          const skillsTitle = document.createElement('li');
+          skillsTitle.classList.add('skill-title')
+          skillsTitle.innerHTML = 'Course goals'
+          skillsWrapper.appendChild(skillsTitle)
+        }
+        const skill = document.createElement('li');
+        skill.innerHTML = skills[i];
+        skillsWrapper.appendChild(skill)
       }
-      const skill = document.createElement('li');
-      skill.innerHTML = skills[i];
-      skillsWrapper.appendChild(skill)
     }
 
     card.appendChild(titleBlock)
     card.appendChild(descriptionBlock)
     card.appendChild(lessonsBlock)
-    if (skills.length) card.appendChild(skillsWrapper)
+    if (skills && skills.length) card.appendChild(skillsWrapper)
     card.appendChild(ratingBlock)
     card.appendChild(imageWrapper)
-    card.appendChild(courseUrl)
+    card.appendChild(courseURL)
 
-    console.log(skills);
-
-    document.querySelector('.course-wrapper').appendChild(card);
+    this.coursesWrapper.appendChild(card);
   }
 }
