@@ -9,6 +9,10 @@ body {
   overflow-y: auto;
 }
 
+body[overflow-hidden="true"] {
+  overflow: hidden !important;
+}
+
 .container {
   max-width: 1440px;
   margin: 50px auto;
@@ -27,6 +31,63 @@ body {
   margin: 40px auto;
   font-size: 22px;
   color: #ff5656;
+}
+
+.rating-wrapper {
+  position: relative;
+  margin: 15px 0 20px;
+  height: 18px;
+  display: flex;
+  padding: 0 10px;
+}
+
+.rating-svg {
+  width: 100px;
+  height: 100%;
+  position: relative;
+  margin-right: 12px;
+  color: #f5c036;
+  left: 0;
+  right: 0;
+}
+
+.rating-svg span {
+  display: flex;
+  position: absolute;
+  height: 100%;
+}
+
+.rating-svg .rating-full {
+  width: var(--width, 100%);
+  object-fit: cover;
+  overflow: hidden;
+}
+
+.rating-wrapper svg {
+  position: absolute;
+}
+
+.rating-svg span {
+  display: flex;
+  position: absolute;
+  height: 100%;
+}
+
+#page-overlay {
+  position: fixed;
+  z-index: 5;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  left: 0;
+  background-color: #000;
+  opacity: 0;
+  visibility: hidden;
+}
+
+#page-overlay[aria-hidden=false] {
+  opacity: .6;
+  visibility: visible;
 }
 
 .preloader {

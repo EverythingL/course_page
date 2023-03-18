@@ -1,6 +1,6 @@
 const courseWrapper = document.querySelector('.courses-wrapper');
 
-fetch(`${MOCK_URL}${COURSES_URL}`, requestOptions)
+fetch(`${COURSES_URL}`, requestOptions)
   .then(response => response.json())
   .then(result => {
     if (result.error) {

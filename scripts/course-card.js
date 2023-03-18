@@ -103,9 +103,27 @@ class CourseCard {
     card.appendChild(lessonsBlock)
     if (skills && skills.length) card.appendChild(skillsWrapper)
     card.appendChild(ratingBlock)
+    if (course.meta.courseVideoPreview && course.meta.courseVideoPreview.link) {
+      const video = createVideo({src: course.meta.courseVideoPreview.link})
+      imageWrapper.appendChild(video)
+    }
     card.appendChild(imageWrapper)
     card.appendChild(courseURL)
 
     this.coursesWrapper.appendChild(card);
+    this.cardEventListeners(card);
+  }
+
+  cardEventListeners(card) {
+    if (!card.querySelector('video')) return
+    const video = card.querySelector('video');
+    card.addEventListener('mouseenter', () => {
+      try {video.play()}
+      catch(error) {console.log(error)}
+    })
+    card.addEventListener('mouseout', () => {
+      try {video.pause()}
+      catch(error) {console.log(error)}
+    })
   }
 }
