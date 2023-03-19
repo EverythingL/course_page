@@ -143,3 +143,9 @@
   border: 3px solid #616dd9;
   background: #616dd9;
 }
+
+@media screen and (max-width: 767px) {
+  .course-card {
+    max-width: 100%;
+  }
+}

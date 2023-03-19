@@ -103,6 +103,7 @@ class SingleCourse {
       const closeVideoModalBtn = document.createElement('button');
       const videoPreviewImage = document.createElement('img');
       const continueWatchWrapper = document.createElement('div');
+      const changeSpeedInfo = document.createElement('div');
       const videoProgressBar = document.createElement('div');
       
       video.id = `${this.id}_${order}`
@@ -111,23 +112,25 @@ class SingleCourse {
       videoModal.ariaHidden = true;
       videoPreviewImageWrapper.classList.add('video-preview-wrapper');
       openVideoModalBtn.classList.add('video-preview-btn');
-      openVideoModalBtn.setAttribute('data-open', true)
+      openVideoModalBtn.setAttribute('data-open', true);
       closeVideoModalBtn.classList.add('close-btn');
-      closeVideoModalBtn.setAttribute('data-open', false)
-      videoPreviewImage.classList.add('video-preview-image')
+      closeVideoModalBtn.setAttribute('data-open', false);
+      videoPreviewImage.classList.add('video-preview-image');
       continueWatchWrapper.classList.add('continue-watch-wrapper');
-      videoProgressBar.classList.add('video-progress-bar')
+      changeSpeedInfo.classList.add('change-speed-info');
+      changeSpeedInfo.innerHTML = `You can change the playback speed to enter "Alt + '+'" to play faster or "Alt + '-'" to slow down. <span>Current speed <span id="video-speed">1</span>x.</span> To reset the speed to default, press "Alt + '0'".`
+      videoProgressBar.classList.add('video-progress-bar');
 
       if (status == 'locked') {
         openVideoModalBtn.setAttribute('disabled', '')
         openVideoModalBtn.setAttribute('title', 'The lesson is not available for review')
       } else {
+        videoPreviewImageWrapper.appendChild(videoProgressBar)
         this.updateProgressBar(video, duration, videoProgressBar, videoPreviewImageWrapper)
       }
+
       videoPreviewImage.src = videoPosterSrc;
-
       lessonCard.appendChild(titleDiv)
-
       videoPreviewImageWrapper.appendChild(videoPreviewImage)
       videoPreviewImageWrapper.appendChild(openVideoModalBtn)
 
@@ -135,6 +138,7 @@ class SingleCourse {
       videoModal.appendChild(closeVideoModalBtn)
       videoModal.appendChild(video)
       videoModal.appendChild(continueWatchWrapper)
+      videoModal.appendChild(changeSpeedInfo)
       videoWrapper.appendChild(videoPreviewImageWrapper)
       videoWrapper.appendChild(videoModal)
 
@@ -143,23 +147,25 @@ class SingleCourse {
     }
 
     lessonsBlock.appendChild(lessonsWrapper)
-
-
     this.courseWrapper.appendChild(lessonsBlock)
-
     this.courseEventListeners();
   }
 
   courseEventListeners() {
     const toggleModalBtns = document.querySelectorAll('.lesson-card [data-open]');
-    toggleModalBtns.forEach(btn => btn.addEventListener('click', (e) => toggleModal(e)))
-    this.pageOverlay.addEventListener('click', () => closeAllModals())
+    toggleModalBtns.forEach(btn => btn.addEventListener('click', (e) => toggleModal(e)));
+    this.pageOverlay.addEventListener('click', () => closeAllModals());
+    document.querySelectorAll('.lesson-video-modal video').forEach(video => this.videoEventListeners(video));
 
     const toggleModal = (e) => {
       const modal = e.target.closest('.lesson-card').querySelector('.lesson-video-modal');
-      const video = modal.querySelector('video')
+      const video = modal.querySelector('video');
       const bool = e.target.closest('button').getAttribute('data-open') == 'true' ? true : false;
-      bool == false ? video.pause() : video.play()
+      if (bool == false) video.pause() 
+      else {
+        video.play();
+        video.focus();
+      }
       modal.ariaHidden = !bool;
       this.pageOverlay.ariaHidden = !bool;
       document.body.setAttribute('overflow-hidden', bool);
@@ -168,66 +174,73 @@ class SingleCourse {
     const closeAllModals = () => {
       document.querySelectorAll('.lesson-video-modal').forEach(modal => {
         modal.querySelector('video').pause();
-        modal.ariaHidden = true
+        modal.ariaHidden = true;
       })
       this.pageOverlay.ariaHidden = true;
       document.body.setAttribute('overflow-hidden', false);
     }
+  }
 
-    document.querySelectorAll('.lesson-video-modal video').forEach(video => {
-      video.addEventListener("play", (e) => {
-        const video = e.target;
-        const videoId = e.target.id;
-        const continueWatchWrapper = video.closest('.lesson-video-modal').querySelector('.continue-watch-wrapper')
-        if (!localStorage.hasOwnProperty(videoId)) return
+  videoEventListeners(video) {
+    video.addEventListener("play", (e) => {
+      const video = e.target;
+      const videoId = e.target.id;
+      const continueWatchWrapper = video.closest('.lesson-video-modal').querySelector('.continue-watch-wrapper')
+      if (!localStorage.hasOwnProperty(videoId)) return
+      const continueWatchBtn = document.createElement('button');
+      let minutes = Math.floor(localStorage.getItem(videoId) / 60);
+      let seconds = Math.floor(localStorage.getItem(videoId) % 60);
+      minutes < 10 ? minutes = `0${minutes}` : minutes = minutes;
+      seconds < 10 ? seconds = `0${seconds}` : seconds = seconds;
+      const currentTime = `${minutes}:${seconds}`;
+
+      continueWatchWrapper.innerHTML = '';
+      continueWatchBtn.classList.add('continue-watch');
+      continueWatchBtn.innerHTML = `Continue watching from ${currentTime}`
+      continueWatchWrapper.appendChild(continueWatchBtn)
+
+      continueWatchBtn.addEventListener('click', () => {
+        video.focus();
         continueWatchWrapper.innerHTML = '';
-        const continueWatchBtn = document.createElement('button');
-        let minutes = Math.floor(localStorage.getItem(videoId) / 60);
-        let seconds = Math.floor(localStorage.getItem(videoId) % 60);
-        minutes < 10 ? minutes = `0${minutes}` : minutes = minutes;
-        seconds < 10 ? seconds = `0${seconds}` : seconds = seconds;
-        const currentTime = `${minutes}:${seconds}`;
-        continueWatchBtn.classList.add('continue-watch');
-        continueWatchBtn.innerHTML = `Continue watching from ${currentTime}`
-        continueWatchWrapper.appendChild(continueWatchBtn)
+        video.currentTime = localStorage.getItem(videoId);
+      })
+    }, {once: true});
 
-        continueWatchBtn.addEventListener('click', () => {
-          continueWatchWrapper.innerHTML = '';
-          video.currentTime = localStorage.getItem(videoId);
-        })
-      }, {once: true});
+    video.addEventListener("pause", (e) => {
+      const video = e.target;
+      const continueWatchWrapper = video.closest('.lesson-video-modal').querySelector('.continue-watch-wrapper')
 
-      video.addEventListener("pause", (e) => {
-        const video = e.target;
-        const continueWatchWrapper = video.closest('.lesson-video-modal').querySelector('.continue-watch-wrapper')
-        continueWatchWrapper.innerHTML = '';
-      });
+      continueWatchWrapper.innerHTML = '';
+    });
 
-      // video.addEventListener("timeupdate", (e) => {
-      //   const videoId = e.target.id;
-      //   const currentTime = (e.target.currentTime).toFixed(1)
-      //   const videoProgressBar = video.closest('.lesson-card').querySelector('.video-progress-bar')
-      //   const videoPreviewImageWrapper = video.closest('.lesson-card').querySelector('.video-preview-wrapper')
-      //   const continueWatchWrapper = video.closest('.lesson-video-modal').querySelector('.continue-watch-wrapper')
-      //   continueWatchWrapper.innerHTML = '';
-      //   this.updateProgressBar(video, video.duration, videoProgressBar, videoPreviewImageWrapper)
-        
-      //   if (continueWatchWrapper.innerHTML === '') localStorage.setItem(videoId, currentTime)
-
-      //   // const videoId = e.target.id;
-      //   // const continueWatchWrapper = video.closest('.lesson-video-modal').querySelector('.continue-watch-wrapper')
-      //   // const currentTime = (e.target.currentTime).toFixed(1)
-      //   // if (continueWatchWrapper.innerHTML === '') localStorage.setItem(videoId, currentTime)
-      // });
+    video.addEventListener('keydown', (e) => {
+      const modal = e.target.closest('.lesson-video-modal');
+      if (e.altKey && e.keyCode == 48) video.playbackRate = 1
+      if (e.keyCode == 189 && video.playbackRate > .25) video.playbackRate -= .25
+      if (e.keyCode == 187 && video.playbackRate < 3) video.playbackRate += .25
+      modal.querySelector('#video-speed').innerHTML = video.playbackRate
     })
+
+    video.addEventListener("timeupdate", (e) => {
+      const videoId = e.target.id;
+      const currentTime = (e.target.currentTime).toFixed(1)
+      const videoProgressBar = video.closest('.lesson-card').querySelector('.video-progress-bar')
+      const videoPreviewImageWrapper = video.closest('.lesson-card').querySelector('.video-preview-wrapper')
+      const continueWatchWrapper = video.closest('.lesson-video-modal').querySelector('.continue-watch-wrapper')
+
+      this.updateProgressBar(video, video.duration, videoProgressBar, videoPreviewImageWrapper)
+      if (continueWatchWrapper.innerHTML === '') localStorage.setItem(videoId, currentTime)
+    });
   }
 
   updateProgressBar(video, duration, videoProgressBar, videoPreviewImageWrapper) {
     if (!localStorage.hasOwnProperty(video.id)) return;
     videoProgressBar.innerHTML = '';
     const progress = (localStorage.getItem(video.id) / duration * 100).toFixed(1)
+    let visibleClass = '';
+    progress >= 10 ? visibleClass = 'show' : visibleClass = '';
     videoProgressBar.setAttribute('style', `--width: ${progress}%`)
-    videoProgressBar.innerHTML = `<div class="progress-bar">${progress}%</div>`
+    videoProgressBar.innerHTML = `<div class="progress-bar ${visibleClass}" title="Video progress">${progress}%</div>`
     videoPreviewImageWrapper.appendChild(videoProgressBar)
   }
 }
