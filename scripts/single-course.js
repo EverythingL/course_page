@@ -2,11 +2,11 @@ class SingleCourse {
   constructor(id) {
     this.id = id;
     this.btnBack = document.getElementById('btn_back');
-    this.btnBack.addEventListener('click', () => window.history.back())
+    this.btnBack.addEventListener('click', () => this.backToPreviousPage())
     
     this.courseWrapper = document.querySelector('.course-wrapper');
     this.pageOverlay = document.getElementById('page-overlay')
-    if (!this.id || this.id == '') window.history.back();
+    if (!this.id || this.id == '') this.backToPreviousPage()
 
     this.fetchCourseInfo()
   }
@@ -82,7 +82,9 @@ class SingleCourse {
     lessonsBlock.appendChild(lessonsBlockTitle)
 
     for (let i = 0; i < lessons.length; i++) {
-      const {link, previewImageLink, status, title, order, duration} = lessons[i]
+      const {previewImageLink, status, title, order, duration, type} = lessons[i];
+      if (type !== 'video') return;
+      const {link} = lessons[i];
       const lessonCard = document.createElement('div');
       const videoPosterSrc = `${previewImageLink}/lesson-${order}.webp`;
       lessonCard.classList.add('lesson-card');
@@ -242,6 +244,11 @@ class SingleCourse {
     videoProgressBar.setAttribute('style', `--width: ${progress}%`)
     videoProgressBar.innerHTML = `<div class="progress-bar ${visibleClass}" title="Video progress">${progress}%</div>`
     videoPreviewImageWrapper.appendChild(videoProgressBar)
+  }
+
+  backToPreviousPage() {
+    if (window.history.length === 1) window.location = document.location.pathname.substring(0, document.location.pathname.indexOf('html'))
+    else window.history.back()
   }
 }
 

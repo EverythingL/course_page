@@ -367,4 +367,8 @@ button.continue-watch {
   .lesson-title {
     font-size: 16px;
   }
+
+  .continue-watch-wrapper {
+    bottom: 80px;
+  }
 }

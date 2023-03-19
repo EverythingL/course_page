@@ -7,3 +7,5 @@ Construction that has been provided to show preview image for course lessons doe
 To avoid problems with a preview image for course lessons I used this construction previewImageLink/lesson-order.webp
 
 In this app, I completed all of the tasks and additional subtasks (except one with 'Picture in picture' functionality, I had lack of time on this)
+
+There is a course named 'Memory training simulator' (maybe there are a few like it), but it does not have any videos, and the image preview for the lessons do not work, so it is just the course image, name, and description on this page.
