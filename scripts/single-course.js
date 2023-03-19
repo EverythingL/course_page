@@ -32,7 +32,6 @@ class SingleCourse {
 
   renderCourseInfo(data) {
     const {title, description, rating, previewImageLink} = data;
-    console.log(data);
 
     document.getElementById('title').innerHTML = title;
     document.querySelector('head title').innerHTML = title;

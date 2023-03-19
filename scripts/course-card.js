@@ -34,7 +34,6 @@ class CourseCard {
 
     for (let i = startIndex; i < endIndex; i++) {
       this.renderCard(this.courses[i])
-      console.log(this.courses[i]);
     }
   }
 
