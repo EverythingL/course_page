@@ -1,4 +1,4 @@
-# course_page
+# course page app
 Video from these pages can have errors with loading.
 To avoid this, install and activate this Chrome extension https://chrome.google.com/webstore/detail/allow-cors-access-control/lhobafahddgcelffkeicbaginigeejlf
 Construction that has been provided to show preview image for course lessons does not work (previewImageLink + '/' + lesson.order + '.webp')
