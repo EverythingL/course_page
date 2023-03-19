@@ -2,10 +2,11 @@ class SingleCourse {
   constructor(id) {
     this.id = id;
     this.btnBack = document.getElementById('btn_back');
+    this.btnBack.addEventListener('click', () => window.history.back())
+    
     this.courseWrapper = document.querySelector('.course-wrapper');
     this.pageOverlay = document.getElementById('page-overlay')
-    if (!this.id || this.id == '') document.location = '/index.html';
-    this.btnBack.addEventListener('click', () => window.history.back())
+    if (!this.id || this.id == '') window.history.back();
 
     this.fetchCourseInfo()
   }
