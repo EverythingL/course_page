@@ -1,4 +1,7 @@
 # course page app
+
+This project can be unavailable because the owner could closed the core API.
+
 Loading data from provided API can have CORS errors.
 Videos from these pages also can have CORS  errors with loading.
 To avoid these errors, install and activate this Chrome extension https://chrome.google.com/webstore/detail/allow-cors-access-control/lhobafahddgcelffkeicbaginigeejlf
